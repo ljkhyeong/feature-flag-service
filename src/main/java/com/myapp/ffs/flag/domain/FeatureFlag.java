@@ -2,6 +2,11 @@ package com.myapp.ffs.flag.domain;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -41,6 +46,7 @@ public class FeatureFlag {
 	@Column(nullable = false)
 	private boolean enabled;
 
+	@JdbcTypeCode(SqlTypes.TINYINT)
 	private Integer rolloutPercentage; // 0~100
 
 	@Column(columnDefinition = "json")
@@ -50,9 +56,11 @@ public class FeatureFlag {
 	private int version;
 
 	@Column(nullable = false, updatable = false)
+	@CreationTimestamp
 	private LocalDateTime createdAt;
 
 	@Column(nullable = false)
+	@UpdateTimestamp
 	private LocalDateTime updatedAt;
 
 }
