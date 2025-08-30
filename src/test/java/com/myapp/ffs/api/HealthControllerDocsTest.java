@@ -21,6 +21,8 @@ class HealthControllerDocsTest {
 	@Autowired
 	MockMvc mockMvc;
 
+
+
 	@Test
 	void 헬스체크() throws Exception{
 		mockMvc.perform(get("/api/health").accept(MediaType.APPLICATION_JSON))
