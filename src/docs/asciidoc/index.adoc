@@ -1,0 +1,27 @@
+= Feature Flag API 문서
+
+== 소개
+이 문서는 Feature Flag 서비스의 API 문서를 제공합니다.
+
+== API 목록
+
+=== POST /api/flags
+This is an example of creating a new feature flag.
+
+include::build/generated-snippets/create-flag/http-request.adoc[]
+
+=== GET /api/flags
+This is an example of retrieving a feature flag.
+
+include::build/generated-snippets/get-flag/http-request.adoc[]
+
+=== PUT /api/flags/{id}
+This is an example of updating a feature flag.
+
+include::build/generated-snippets/update-flag/http-request.adoc[]
+
+=== DELETE /api/flags/{id}
+This is an example of deleting a feature flag.
+
+include::build/generated-snippets/delete-flag/http-request.adoc[]
+

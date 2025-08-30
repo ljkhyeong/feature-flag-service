@@ -25,3 +25,11 @@ server:
 logging:
   level:
     org.hibernate.SQL: debug
+    org.springframework.data.redis.connection: info
+    org.springframework.data.redis.core: info
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus

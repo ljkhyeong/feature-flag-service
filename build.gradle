@@ -60,4 +60,14 @@ tasks.named('test') {
 tasks.named('asciidoctor') {
 	inputs.dir snippetsDir
 	dependsOn test
+
+	// Output directory for HTML docs
+	outputDir = file("build/docs/asciidoc")
+	// Asciidoctor를 'snippetsDir' 폴더에서만 읽도록 설정
+	doLast {
+		asciidoctor {
+			sources { include 'src/docs/asciidoc/index.adoc' }  // index.adoc 파일을 소스로 지정
+			outputDir file('build/docs/asciidoc')
+		}
+	}
 }

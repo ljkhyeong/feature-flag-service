@@ -2,9 +2,14 @@ package com.myapp.ffs.flag.service;
 
 import java.util.NoSuchElementException;
 
+import org.apache.logging.log4j.util.PropertySource;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myapp.ffs.flag.domain.FeatureFlag;
 import com.myapp.ffs.flag.dto.FeatureFlagRequestDto;
 import com.myapp.ffs.flag.dto.FeatureFlagResponseDto;
@@ -31,6 +36,7 @@ public class FeatureFlagService {
 		return FeatureFlagResponseDto.from(savedFlag);
 	}
 
+	@Cacheable(value = "flags", key = "#key + ':' + #env")
 	@Transactional(readOnly = true)
 	public FeatureFlagResponseDto find(String key, String env) {
 		return featureFlagRepository.findByFlagKeyAndEnv(key, env)
@@ -38,6 +44,7 @@ public class FeatureFlagService {
 			.orElseThrow(() -> new NoSuchElementException("flag not found"));
 	}
 
+	@CacheEvict(value = "flags", allEntries = true)
 	@Transactional
 	public FeatureFlagResponseDto update(Long id, FeatureFlagRequestDto dto) {
 		FeatureFlag flag = featureFlagRepository.findById(id)
