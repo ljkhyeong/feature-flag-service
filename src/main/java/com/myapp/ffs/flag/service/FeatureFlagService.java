@@ -36,4 +36,24 @@ public class FeatureFlagService {
 		return featureFlagRepository.findByFlagKeyAndEnv(key, env)
 			.map(FeatureFlagResponseDto::from)
 			.orElseThrow(() -> new NoSuchElementException("flag not found"));
-	}}
+	}
+
+	@Transactional
+	public FeatureFlagResponseDto update(Long id, FeatureFlagRequestDto dto) {
+		FeatureFlag flag = featureFlagRepository.findById(id)
+			.orElseThrow(() -> new NoSuchElementException("flag not found"));
+
+		flag.change(dto.flagKey(), dto.env(), dto.description(), dto.enabled());
+		return FeatureFlagResponseDto.from(flag);
+	}
+
+	@Transactional
+	public void delete(Long id) {
+		if (!featureFlagRepository.existsById(id))
+			throw new NoSuchElementException("flag not found");
+		featureFlagRepository.deleteById(id);
+	}
+
+
+
+}

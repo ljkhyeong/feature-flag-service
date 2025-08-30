@@ -63,4 +63,11 @@ public class FeatureFlag {
 	@UpdateTimestamp
 	private LocalDateTime updatedAt;
 
+	public void change(String flagKey, String env, String description, boolean enabled) {
+		this.flagKey = flagKey;
+		this.env = env;
+		this.description = description;
+		this.enabled = enabled;
+	}
+
 }

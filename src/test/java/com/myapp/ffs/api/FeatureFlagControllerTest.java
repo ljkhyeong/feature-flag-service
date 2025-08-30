@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.myapp.ffs.flag.domain.FeatureFlag;
 import com.myapp.ffs.flag.dto.FeatureFlagRequestDto;
 import com.myapp.ffs.flag.dto.FeatureFlagResponseDto;
 import com.myapp.ffs.flag.service.FeatureFlagService;
@@ -33,10 +34,10 @@ public class FeatureFlagControllerTest {
 	@Test
 	void createFlag() throws Exception {
 		String json = """
-            { "flagKey":"checkout.newPayment", "env":"stage", "description":"테스트", "enabled":true }
+            { "flagKey":"checkout.newPayment", "env":"stage", "enabled":true }
             """;
 
-		given(featureFlagService.find("checkout.newPayment", "stage"))
+		given(featureFlagService.create(any()))
 			.willReturn(new FeatureFlagResponseDto(1L,"checkout.newPayment", "stage", true));
 
 		mockMvc.perform(post("/api/flags")
@@ -45,4 +46,28 @@ public class FeatureFlagControllerTest {
 			.andExpect(status().isOk())
 			.andDo(document("create-flag"));
 	}
+
+	@Test
+	void updateFlag() throws Exception {
+		String json = """
+            { "flagKey":"checkout.newPayment", "env":"prod", "enabled":true }
+            """;
+
+		given(featureFlagService.update(anyLong(), any()))
+			.willReturn(new FeatureFlagResponseDto(1L, "checkout.newPayment", "prod", true));
+
+		mockMvc.perform(put("/api/flags/{id}", 1L)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(json))
+			.andExpect(status().isOk())
+			.andDo(document("update-flag"));
+	}
+
+	@Test
+	void deleteFlag() throws Exception {
+		mockMvc.perform(delete("/api/flags/{id}", 1L))
+			.andExpect(status().isNoContent())
+			.andDo(document("delete-flag"));
+	}
+
 }

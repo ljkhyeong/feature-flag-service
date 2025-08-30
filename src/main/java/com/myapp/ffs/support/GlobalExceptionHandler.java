@@ -1,5 +1,7 @@
 package com.myapp.ffs.support;
 
+import java.util.NoSuchElementException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -16,8 +18,16 @@ public class GlobalExceptionHandler {
 			.map(err -> err.getField() + ":" + err.getDefaultMessage())
 			.findFirst().orElse("validation error");
 
-		return ResponseEntity.badRequest().body(ErrorResponse.of("VALIDATION_ERROR", "Invalid Request", detail));
+		return ResponseEntity.badRequest()
+			.body(ErrorResponse.of("VALIDATION_ERROR", "Invalid Request", detail));
 	}
+
+	@ExceptionHandler(NoSuchElementException.class)
+	public ResponseEntity<ErrorResponse> handleNotFound(NoSuchElementException e) {
+		return ResponseEntity.status(HttpStatus.NOT_FOUND)
+			.body(ErrorResponse.of("NOT_FOUND", e.getMessage(), null));
+	}
+
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> handleAny(Exception e) {
