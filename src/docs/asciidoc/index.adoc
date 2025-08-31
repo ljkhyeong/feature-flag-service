@@ -10,7 +10,7 @@ This is an example of creating a new feature flag.
 
 include::build/generated-snippets/create-flag/http-request.adoc[]
 
-=== GET /api/flags
+=== GET /api/flags/{env}/{key}
 This is an example of retrieving a feature flag.
 
 include::build/generated-snippets/get-flag/http-request.adoc[]
