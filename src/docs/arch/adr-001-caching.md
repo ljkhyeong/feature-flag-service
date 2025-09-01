@@ -30,3 +30,6 @@ Accepted (2025-08-31)
 ## 결과
 - E2E 시나리오 1~3 안정 통과.
 - 업데이트 시나리오(캐시 무효화/재적재)는 API 구현 후 테스트에 포함 예정.
+
+## 변경 내역 (2025-08-31)
+- GenericJackson2JsonRedisSerializer로 교체 완료

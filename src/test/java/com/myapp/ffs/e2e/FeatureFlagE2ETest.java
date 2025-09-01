@@ -91,7 +91,7 @@ class FeatureFlagE2ETest {
 	@Test
 	@Order(1)
 	@DisplayName("캐시 미스 : 첫 요청")
-	void getFlag_cacheMiss_thenCaching() throws Exception {
+	void getFlag_cacheMiss() throws Exception {
 		// given
 		assertThat(redisTemplate.hasKey(cacheKey)).isFalse();
 
