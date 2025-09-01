@@ -35,26 +35,26 @@ import com.myapp.ffs.flag.service.FeatureFlagService;
 public class FeatureFlagControllerTest {
 	@Autowired
 	MockMvc mockMvc;
-
 	@MockitoBean
 	FeatureFlagService featureFlagService;
+
+	private static final String KEY = "checkout.newPayment";
+	private static final String ENV = "stage";
 
 	@Test
 	@DisplayName("GET /api/flags/{env}/{key} - 200 성공")
 	void getFlag_success()	throws Exception {
 		// given
-		String key = "checkout.newPayment";
-		String env = "stage";
-		given(featureFlagService.find(key, env))
-			.willReturn(new FeatureFlagResponseDto(1L, key, env, true));
+		given(featureFlagService.find(KEY, ENV))
+			.willReturn(new FeatureFlagResponseDto(1L, KEY, ENV, true));
 
 		// when
 		// then
-		mockMvc.perform(get("/api/flags/{env}/{key}", env, key)
+		mockMvc.perform(get("/api/flags/{env}/{key}", ENV, KEY)
 				.accept(MediaType.APPLICATION_JSON))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.flagKey").value(key))
-			.andExpect(jsonPath("$.env").value(env))
+			.andExpect(jsonPath("$.flagKey").value(KEY))
+			.andExpect(jsonPath("$.env").value(ENV))
 			.andDo(document("get-flag-success",
 				pathParameters(
 					parameterWithName("env").description("환경 (e.g prod/stage)"),
@@ -70,17 +70,15 @@ public class FeatureFlagControllerTest {
 	}
 
 	@Test
-	@DisplayName("GET /api/flags/{env}/{key} - 200 성공")
-	void getFlag_fail() throws Exception {
+	@DisplayName("GET /api/flags/{env}/{key} - 404 실패 (플래그 없음)")
+	void getFlag_notFound() throws Exception {
 		// given
-		String key = "unknown";
-		String env = "stage";
-		given(featureFlagService.find(key, env))
+		given(featureFlagService.find("unknown", ENV))
 			.willThrow(new NoSuchElementException("flag not found"));
 
 		// when
 		// then
-		mockMvc.perform(get("/api/flags/{env}/{key}", env, key)
+		mockMvc.perform(get("/api/flags/{env}/{key}", ENV, "unknown")
 				.accept(MediaType.APPLICATION_JSON))
 			.andExpect(status().isNotFound())
 			.andDo(document("get-flag-404",
@@ -104,7 +102,7 @@ public class FeatureFlagControllerTest {
             """;
 
 		given(featureFlagService.create(any()))
-			.willReturn(new FeatureFlagResponseDto(1L,"checkout.newPayment", "stage", true));
+			.willReturn(new FeatureFlagResponseDto(1L,KEY, ENV, true));
 
 		mockMvc.perform(post("/api/flags")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -120,13 +118,14 @@ public class FeatureFlagControllerTest {
 	}
 
 	@Test
+	@DisplayName("PUT /api/flags/{id} - 200 성공 (수정)")
 	void updateFlag() throws Exception {
 		String json = """
             { "flagKey":"checkout.newPayment", "env":"prod", "enabled":true }
             """;
 
 		given(featureFlagService.update(anyLong(), any()))
-			.willReturn(new FeatureFlagResponseDto(1L, "checkout.newPayment", "prod", true));
+			.willReturn(new FeatureFlagResponseDto(1L, KEY, "prod", true));
 
 		mockMvc.perform(put("/api/flags/{id}", 1L)
 				.contentType(MediaType.APPLICATION_JSON)
@@ -135,11 +134,23 @@ public class FeatureFlagControllerTest {
 			.andDo(document("update-flag",
 				pathParameters(
 					parameterWithName("id").description("플래그 ID")
+				),
+				requestFields(
+					fieldWithPath("flagKey").description("플래그 키"),
+					fieldWithPath("env").description("환경"),
+					fieldWithPath("enabled").description("활성화 여부")
+				),
+				responseFields(
+					fieldWithPath("id").description("플래그 ID").optional(),
+					fieldWithPath("flagKey").description("플래그 키"),
+					fieldWithPath("env").description("환경"),
+					fieldWithPath("enabled").description("활성화 여부")
 				)
 			));
 	}
 
 	@Test
+	@DisplayName("DELETE /api/flags/{id} - 204 성공 (삭제)")
 	void deleteFlag() throws Exception {
 		mockMvc.perform(delete("/api/flags/{id}", 1L))
 			.andExpect(status().isNoContent())
