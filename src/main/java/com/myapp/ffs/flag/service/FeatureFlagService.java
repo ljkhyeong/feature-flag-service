@@ -5,11 +5,14 @@ import java.util.NoSuchElementException;
 import org.apache.logging.log4j.util.PropertySource;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContextException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.myapp.ffs.exception.ApplicationException;
+import com.myapp.ffs.exception.ErrorCode;
 import com.myapp.ffs.flag.domain.FeatureFlag;
 import com.myapp.ffs.flag.dto.FeatureFlagRequestDto;
 import com.myapp.ffs.flag.dto.FeatureFlagResponseDto;
@@ -41,14 +44,14 @@ public class FeatureFlagService {
 	public FeatureFlagResponseDto find(String key, String env) {
 		return featureFlagRepository.findByFlagKeyAndEnv(key, env)
 			.map(FeatureFlagResponseDto::from)
-			.orElseThrow(() -> new NoSuchElementException("flag not found"));
+			.orElseThrow(() -> new ApplicationException(ErrorCode.FLAG_NOT_FOUND));
 	}
 
 	@CacheEvict(value = "flags", allEntries = true)
 	@Transactional
 	public FeatureFlagResponseDto update(Long id, FeatureFlagRequestDto dto) {
 		FeatureFlag flag = featureFlagRepository.findById(id)
-			.orElseThrow(() -> new NoSuchElementException("flag not found"));
+			.orElseThrow(() -> new ApplicationException(ErrorCode.FLAG_NOT_FOUND));
 
 		flag.change(dto.flagKey(), dto.env(), dto.description(), dto.enabled());
 		return FeatureFlagResponseDto.from(flag);
@@ -57,7 +60,7 @@ public class FeatureFlagService {
 	@Transactional
 	public void delete(Long id) {
 		if (!featureFlagRepository.existsById(id))
-			throw new NoSuchElementException("flag not found");
+			throw new ApplicationException(ErrorCode.FLAG_NOT_FOUND);
 		featureFlagRepository.deleteById(id);
 	}
 
