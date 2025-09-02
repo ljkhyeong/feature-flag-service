@@ -9,6 +9,11 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.myapp.ffs.exception.ApplicationException;
+import com.myapp.ffs.exception.ErrorCode;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -22,10 +27,11 @@ public class GlobalExceptionHandler {
 			.body(ErrorResponse.of("VALIDATION_ERROR", "Invalid Request", detail));
 	}
 
-	@ExceptionHandler(NoSuchElementException.class)
-	public ResponseEntity<ErrorResponse> handleNotFound(NoSuchElementException e) {
-		return ResponseEntity.status(HttpStatus.NOT_FOUND)
-			.body(ErrorResponse.of("NOT_FOUND", e.getMessage(), null));
+	@ExceptionHandler(ApplicationException.class)
+	public ResponseEntity<ErrorResponse> handleNotFound(ApplicationException e, HttpServletRequest req) {
+		ErrorCode errorCode = e.getErrorCode();
+		return ResponseEntity.status(errorCode.getHttpStatus())
+			.body(ErrorResponse.of(errorCode.name(), errorCode.getMessage(), req.getRequestURI()));
 	}
 
 
