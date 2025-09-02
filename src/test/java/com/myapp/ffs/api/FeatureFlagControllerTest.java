@@ -7,31 +7,26 @@ import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import java.util.NoSuchElementException;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
-import org.springframework.restdocs.payload.PayloadDocumentation;
-import org.springframework.restdocs.request.RequestDocumentation;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import com.myapp.ffs.flag.domain.FeatureFlag;
-import com.myapp.ffs.flag.dto.FeatureFlagRequestDto;
+import com.myapp.ffs.exception.ApplicationException;
+import com.myapp.ffs.exception.ErrorCode;
 import com.myapp.ffs.flag.dto.FeatureFlagResponseDto;
 import com.myapp.ffs.flag.service.FeatureFlagService;
+import com.myapp.ffs.support.GlobalExceptionHandler;
 
 @WebMvcTest(controllers = FeatureFlagController.class)
 @AutoConfigureRestDocs(outputDir = "build/generated-snippets")
+@Import(GlobalExceptionHandler.class)
 public class FeatureFlagControllerTest {
 	@Autowired
 	MockMvc mockMvc;
@@ -42,7 +37,7 @@ public class FeatureFlagControllerTest {
 	private static final String ENV = "stage";
 
 	@Test
-	@DisplayName("GET /api/flags/{env}/{key} - 200 성공")
+	@DisplayName("GET /api/flags/{env}/{key} - 200 성공 (플래그 조회)")
 	void getFlag_success()	throws Exception {
 		// given
 		given(featureFlagService.find(KEY, ENV))
@@ -70,11 +65,11 @@ public class FeatureFlagControllerTest {
 	}
 
 	@Test
-	@DisplayName("GET /api/flags/{env}/{key} - 404 실패 (플래그 없음)")
+	@DisplayName("GET /api/flags/{env}/{key} - 404 실패 (해당하는 key 플래그 없음)")
 	void getFlag_notFound() throws Exception {
 		// given
 		given(featureFlagService.find("unknown", ENV))
-			.willThrow(new NoSuchElementException("flag not found"));
+			.willThrow(new ApplicationException(ErrorCode.FLAG_NOT_FOUND));
 
 		// when
 		// then
@@ -89,26 +84,36 @@ public class FeatureFlagControllerTest {
 				responseFields(
 					fieldWithPath("code").description("에러 코드 (예: FLAG_NOT_FOUND)"),
 					fieldWithPath("message").description("에러 메시지"),
-					fieldWithPath("detail").description("에러 상세")
+					fieldWithPath("path").description("요청 경로"),
+					fieldWithPath("timestamp").description("발생 시각(UTC, ISO-8601)")
 					)
 			));
 	}
 
 
 	@Test
+	@DisplayName("POST /api/flags - 200 성공 (플래그 생성)")
 	void createFlag() throws Exception {
 		String json = """
             { "flagKey":"checkout.newPayment", "env":"stage", "enabled":true }
             """;
 
+		// given
 		given(featureFlagService.create(any()))
 			.willReturn(new FeatureFlagResponseDto(1L,KEY, ENV, true));
 
+		// when
+		// then
 		mockMvc.perform(post("/api/flags")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(json))
 			.andExpect(status().isOk())
 			.andDo(document("create-flag",
+				requestFields(
+					fieldWithPath("flagKey").description("플래그 키"),
+					fieldWithPath("env").description("환경"),
+					fieldWithPath("enabled").description("활성화 여부")
+				),
 				responseFields(
 					fieldWithPath("id").description("플래그 ID").optional(),
 					fieldWithPath("flagKey").description("플래그 키"),
@@ -118,7 +123,7 @@ public class FeatureFlagControllerTest {
 	}
 
 	@Test
-	@DisplayName("PUT /api/flags/{id} - 200 성공 (수정)")
+	@DisplayName("PUT /api/flags/{id} - 200 성공 (플래그 수정)")
 	void updateFlag() throws Exception {
 		String json = """
             { "flagKey":"checkout.newPayment", "env":"prod", "enabled":true }
@@ -150,7 +155,7 @@ public class FeatureFlagControllerTest {
 	}
 
 	@Test
-	@DisplayName("DELETE /api/flags/{id} - 204 성공 (삭제)")
+	@DisplayName("DELETE /api/flags/{id} - 204 성공 (플래그 삭제)")
 	void deleteFlag() throws Exception {
 		mockMvc.perform(delete("/api/flags/{id}", 1L))
 			.andExpect(status().isNoContent())
