@@ -21,9 +21,13 @@
 
 ## 2025-08-31 실행 결과 
 - `redisTemplate.hasKey("new-checkout:prod")` → true (첫 요청 후 캐시 적재 확인)
-- 500 오류 발생 → 원인: Jackson2JsonRedisSerializer<Object> 사용 시 LinkedHashMap 복원
+- 500 오류 발생 → 원인: Jackson2JsonRedisSerializer\<Object\> 사용 시 LinkedHashMap 복원
 - 해결: GenericJackson2JsonRedisSerializer로 교체 후 정상 동작
   - ✅ 캐시 미스: DB 조회 후 200 OK + Redis 적재 확인
   - ✅ 캐시 히트: 두 번째 요청 시 캐시에서 바로 응답 확인
   - ✅ 404: 존재하지 않는 flag 요청 시 FLAG_NOT_FOUND 에러 스키마 반환
   - ⏳ 업데이트 API 없음: 캐시 무효화/재적재 시나리오는 TODO 상태
+
+## 2025-09-01 업데이트
+- CacheConfig에 프리픽스(`ffs:{cacheName}::`), TTL(30분), null 캐싱 금지 반영
+- 표준 에러 스키마 `{code, message, path, timestamp}` 확정
