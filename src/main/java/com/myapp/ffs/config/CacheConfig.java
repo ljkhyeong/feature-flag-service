@@ -1,5 +1,9 @@
 package com.myapp.ffs.config;
 
+import static org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair.*;
+
+import java.time.Duration;
+
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,14 +25,17 @@ import com.myapp.ffs.flag.dto.FeatureFlagResponseDto;
 public class CacheConfig {
 
 	@Bean
-	public RedisCacheManager cacheManager(RedisTemplate<String, Object> redisTemplate) {
-		RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
-			.serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-			.serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
-				new GenericJackson2JsonRedisSerializer()));
+	public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory) {
 
-		return RedisCacheManager.builder(RedisCacheWriter.lockingRedisCacheWriter(redisTemplate.getConnectionFactory()))
-			.cacheDefaults(cacheConfig)
+		RedisCacheConfiguration redisCacheConfig = RedisCacheConfiguration.defaultCacheConfig()
+			.disableCachingNullValues() // 부하 방지를 위해 키느냐, TTL동안 오염되도록 냅두느냐
+			.entryTtl(Duration.ofMinutes(30))
+			.computePrefixWith(cacheName -> "ffs:" + cacheName + "::")
+			.serializeKeysWith(fromSerializer(new StringRedisSerializer()))
+			.serializeValuesWith(fromSerializer(new GenericJackson2JsonRedisSerializer()));
+
+		return RedisCacheManager.builder(redisConnectionFactory)
+			.cacheDefaults(redisCacheConfig)
 			.build();
 	}
 
@@ -37,7 +44,7 @@ public class CacheConfig {
 		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 		redisTemplate.setConnectionFactory(factory);
 		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
+		redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
 		return redisTemplate;
 	}
 
