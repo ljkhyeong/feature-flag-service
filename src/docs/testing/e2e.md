@@ -31,3 +31,20 @@
 ## 2025-09-01 업데이트
 - CacheConfig에 프리픽스(`ffs:{cacheName}::`), TTL(30분), null 캐싱 금지 반영
 - 표준 에러 스키마 `{code, message, path, timestamp}` 확정
+
+## 2025-09-02 업데이트
+
+### 시나리오 확장
+4. 업데이트 후 캐시 무효화/재적재 검증
+  - 최초 조회로 캐시 적재 확인
+  - `PUT /api/flags/{id}`로 env 변경 → 캐시 키 제거 확인
+  - 재조회 시 최신 enabled 값 반영
+
+5. 토글 후 캐시 무효화/재적재 검증
+  - 최초 조회로 캐시 적재
+  - `PATCH /api/flags/{id}/toggle` 수행 → 캐시 키 제거 확인
+  - 재조회 시 토글 결과 반영 확인
+
+### 실행 로그 요약
+- `EXISTS flags::<key>:<env>` 또는 `EXISTS ffs:flags::<key>:<env>`로 캐시 적재/삭제 확인
+- 업데이트/토글 이후 `TTL`은 신규 적재 시점부터 다시 계산됨
