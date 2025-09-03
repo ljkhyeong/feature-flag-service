@@ -70,10 +70,10 @@ class FeatureFlagE2ETest {
 	@Autowired
 	ObjectMapper objectMapper;
 
-	String key = "new-checkout";
-	String env = "prod";
-	String description = "desc.";
-	String cacheKey = "flags::" + key + ":" + env;
+	final String key = "new-checkout";
+	final String env = "prod";
+	final String description = "desc.";
+	final String cacheKey = "ffs:flags::" + key + ":" + env;
 	FeatureFlag flag = FeatureFlag.builder()
 		.flagKey(key)
 		.env(env)
@@ -135,9 +135,51 @@ class FeatureFlagE2ETest {
 		mockMvc.perform(get("/api/flags/{env}/{key}", "stage", "unknown")
 				.accept(MediaType.APPLICATION_JSON))
 			.andExpect(status().isNotFound())
-			.andExpect(jsonPath("$.code").value("NOT_FOUND"))
+			.andExpect(jsonPath("$.code").value("FLAG_NOT_FOUND"))
 			.andExpect(jsonPath("$.message").exists());
 	}
 
 	//TODO 업데이트 후 캐시 날리는거
+	@Test
+	@Order(4)
+	@DisplayName("업데이트 후 캐시 flush 및 새 캐시 put")
+	void updateFlag_cacheEvict() throws Exception {
+		// given
+		mockMvc.perform(get("/api/flags/{env}/{key}", env, key))
+			.andExpect(status().isOk());
+		assertThat(redisTemplate.hasKey(cacheKey)).isTrue();
+
+		// when
+		String body = """
+			{ "flagKey":"checkout.newPayment", "env":"stage", "enabled":true }
+			""";
+		mockMvc.perform(put("/api/flags/{id}",
+				featureFlagRepository.findByFlagKeyAndEnv(key, env).orElseThrow().getId())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(body))
+			.andExpect(status().isOk());
+
+		// then
+		assertThat(redisTemplate.hasKey(cacheKey)).isFalse();
+		assertThat(redisTemplate.hasKey("ffs:flags::checkout.newPayment:stage")).isTrue();
+	}
+
+	@Test
+	@Order(5)
+	@DisplayName("토글 후 캐시 flush, 플래그 비활성화")
+	void toggleFlag_cacheEvict() throws Exception{
+		// given
+		mockMvc.perform(get("/api/flags/{env}/{key}", env, key))
+			.andExpect(status().isOk());
+		assertThat(redisTemplate.hasKey(cacheKey)).isTrue();
+
+		// when
+		mockMvc.perform(patch("/api/flags/{id}",
+				featureFlagRepository.findByFlagKeyAndEnv(key, env).orElseThrow().getId()))
+			.andExpect(status().isOk())
+			.andExpect(jsonPath("$.enabled").value(false));
+
+		// then
+		assertThat(redisTemplate.hasKey(cacheKey)).isFalse();
+	}
 }
