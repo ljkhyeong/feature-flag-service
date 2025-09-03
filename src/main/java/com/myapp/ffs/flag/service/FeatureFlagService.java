@@ -1,9 +1,13 @@
 package com.myapp.ffs.flag.service;
 
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import org.apache.logging.log4j.util.PropertySource;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContextException;
 import org.springframework.stereotype.Service;
@@ -24,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FeatureFlagService {
 	private final FeatureFlagRepository featureFlagRepository;
+	private final CacheManager cacheManager;
 
 	@Transactional
 	public FeatureFlagResponseDto create(FeatureFlagRequestDto dto) {
@@ -47,13 +52,36 @@ public class FeatureFlagService {
 			.orElseThrow(() -> new ApplicationException(ErrorCode.FLAG_NOT_FOUND));
 	}
 
-	@CacheEvict(value = "flags", allEntries = true)
+	@CachePut(value = "flags", key = "#dto.flagKey() + ':' + #dto.env()")
 	@Transactional
 	public FeatureFlagResponseDto update(Long id, FeatureFlagRequestDto dto) {
 		FeatureFlag flag = featureFlagRepository.findById(id)
 			.orElseThrow(() -> new ApplicationException(ErrorCode.FLAG_NOT_FOUND));
 
+		String oldKey = flag.getFlagKey();
+		String oldEnv = flag.getEnv();
+
 		flag.change(dto.flagKey(), dto.env(), dto.description(), dto.enabled());
+		if (!Objects.equals(oldKey, flag.getFlagKey()) || !Objects.equals(oldEnv, flag.getEnv())) {
+			Cache cache = cacheManager.getCache("flags");
+			if (cache != null) {
+				cache.evict(oldKey + ":" + oldEnv);
+			}
+		}
+
+		return FeatureFlagResponseDto.from(flag);
+	}
+
+	@Transactional
+	public FeatureFlagResponseDto toggle(Long id) {
+		FeatureFlag flag = featureFlagRepository.findById(id)
+			.orElseThrow(() -> new ApplicationException(ErrorCode.FLAG_NOT_FOUND));
+
+		flag.toggle();
+		Cache cache = cacheManager.getCache("flags");
+		if (cache != null) {
+			cache.evict(flag.getFlagKey() + ":" + flag.getEnv());
+		}
 		return FeatureFlagResponseDto.from(flag);
 	}
 

@@ -3,6 +3,7 @@ package com.myapp.ffs.api;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -37,6 +38,11 @@ public class FeatureFlagController {
 	public ResponseEntity<FeatureFlagResponseDto> update(@PathVariable Long id,
 		@RequestBody @Valid FeatureFlagRequestDto dto) {
 		return ResponseEntity.ok(featureFlagService.update(id, dto));
+	}
+
+	@PatchMapping("/{id}")
+	public ResponseEntity<FeatureFlagResponseDto> toggle(@PathVariable Long id) {
+		return ResponseEntity.ok(featureFlagService.toggle(id));
 	}
 
 	@DeleteMapping("/{id}")

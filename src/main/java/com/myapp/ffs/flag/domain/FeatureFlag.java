@@ -70,4 +70,8 @@ public class FeatureFlag {
 		this.enabled = enabled;
 	}
 
+	public void toggle() {
+		this.enabled = !this.enabled;
+	}
+
 }
