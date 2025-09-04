@@ -87,9 +87,11 @@ GitHub Actions로 테스트/문서 빌드 실행
 ## 🗄️ Caching 정책
 - 키 규칙: {key}:{env} (예: checkout.newPayment:stage)
 - @Cacheable(value = "flags", key = "#key + ':' + #env")
-- 직렬화기
+- CacheManager, RedisTemplate 직렬화기
   - 범용: GenericJackson2JsonRedisSerializer (타입 메타데이터 포함)
-
+- prefix: `ffs:{cacheName}::` (예: `ffs:flags::checkout.newPayment:stage`)
+- TTL: 기본 30분 (필요 시 조정)
+- null 캐싱 금지: `disableCachingNullValues()`
 ---
 
 ## 📚 문서 관리

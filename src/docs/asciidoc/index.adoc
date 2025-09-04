@@ -25,3 +25,9 @@ This is an example of deleting a feature flag.
 
 include::build/generated-snippets/delete-flag/http-request.adoc[]
 
+=== PATCH /api/flags/{id}
+This is an example of toggle a feature flag.
+
+include::build/generated-snippets/toggle-flag/http-request.adoc[]
+
+
