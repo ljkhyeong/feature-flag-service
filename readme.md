@@ -49,13 +49,13 @@ Spring Boot 기반의 **Feature Flag Management Service**.
 - **테스트 시간**: 30초
 - **동시 사용자 수 (VUs)**: 10명
 
-| 지표                          | 캐싱 전   | 캐싱 후   |
-|-------------------------------|-----------|-----------|
-| 평균 응답 시간 (avg)          | 27.65 ms  | 11.43 ms  |
-| p90 latency                   | 46.1 ms   | 21.14 ms  |
-| p95 latency                   | 62.48 ms  | 36.12 ms  |
-| 총 요청 수                    | 300       | 300       |
-| 성공률                        | 100%      | 100%      |
+| 지표                             | 캐싱 전       | 캐싱 후       |
+|--------------------------------|------------|------------|
+| 평균 응답 시간 (avg)                 | 27.65 ms   | 11.43 ms   |
+| p90 latency                    | 46.1 ms    | 21.14 ms   |
+| p95 latency                    | 62.48 ms   | 36.12 ms   |
+| 총 요청 수                         | 300        | 300        |
+| 성공률                            | 100%       | 100%       |
 
 ✅ 평균 응답 시간 < 200ms, p95 < 500ms, 안정적 성능 확인.
 
@@ -85,13 +85,14 @@ GitHub Actions로 테스트/문서 빌드 실행
 ---
 
 ## 🗄️ Caching 정책
-- 키 규칙: {key}:{env} (예: checkout.newPayment:stage)
-- @Cacheable(value = "flags", key = "#key + ':' + #env")
-- CacheManager, RedisTemplate 직렬화기
-  - 범용: GenericJackson2JsonRedisSerializer (타입 메타데이터 포함)
-- prefix: `ffs:{cacheName}::` (예: `ffs:flags::checkout.newPayment:stage`)
-- TTL: 기본 30분 (필요 시 조정)
-- null 캐싱 금지: `disableCachingNullValues()`
+| 항목            | 규칙/정책                                                                  |
+|---------------|------------------------------------------------------------------------|
+| 키 규칙          | `{key}:{env}` (예: `checkout.newPayment:stage`)                         |
+| @Cacheable 설정 | `@Cacheable(value = "flags", key = "#key + ':' + #env")`               |
+| 프리픽스          | `ffs:{cacheName}::` (예: `ffs:flags::checkout.newPayment:stage`)        |
+| TTL           | 30분 (운영 정책에 따라 조정)                                                     |
+| null 캐싱       | 금지 (`disableCachingNullValues()`)                                      |
+| 직렬화기          | `GenericJackson2JsonRedisSerializer` (CacheManager & RedisTemplate 동일) |
 ---
 
 ## 📚 문서 관리
@@ -99,4 +100,12 @@ GitHub Actions로 테스트/문서 빌드 실행
 - docs/arch/adr-001-caching.md — 캐시 정책/직렬화기 결정
 - docs/retrospectives/ — 날짜별 회고 기록
 
+---
+## ⚠️ 표준 에러 스키마 (예시)
+| 필드명        | 설명                        |
+|------------|---------------------------|
+| code       | 에러 코드 (예: FLAG_NOT_FOUND) |
+| message    | 에러 메시지                    |
+| path       | 요청 경로                     |
+| timestamp  | 발생 시각 (UTC, ISO-8601)     |
 

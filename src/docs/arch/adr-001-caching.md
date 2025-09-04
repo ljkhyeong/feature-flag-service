@@ -43,6 +43,6 @@ Accepted -> **Applied (2025-09-01)**
 ## 변경 내역 
 - 2025-08-31 : GenericJackson2JsonRedisSerializer로 교체 완료 
 - 2025-09-01: 프리픽스/TTL/null 캐싱 금지 적용, 표준 에러 스키마 확정
-- **2025-09-02: 업데이트/토글 시 캐시 무효화 정책 적용**
+- **2025-09-03: 업데이트/토글 시 캐시 무효화 정책 적용**
    - update(id, req): `@CacheEvict(value="flags", key="{key}:{env}")`
    - toggle(id): 저장 후 `CacheManager`로 명시적 `evict("{key}:{env}")`
