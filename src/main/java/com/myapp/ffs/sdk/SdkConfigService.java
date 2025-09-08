@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myapp.ffs.flag.domain.FeatureFlag;
 import com.myapp.ffs.flag.repository.FeatureFlagRepository;
 import com.myapp.ffs.sdk.dto.FlagItem;
+import com.myapp.ffs.sdk.dto.SdkBundle;
 import com.myapp.ffs.sdk.dto.SdkConfigResponse;
 
 import lombok.RequiredArgsConstructor;
@@ -29,8 +30,6 @@ public class SdkConfigService {
 
 	private final FeatureFlagRepository featureFlagRepository;
 	private final ObjectMapper objectMapper;
-
-	private record SdkBundle(String etag, SdkConfigResponse payload) {}
 
 	public SdkBundle getBundle(String env) {
 		List<FeatureFlag> flags = featureFlagRepository.findAllByEnv(env);
@@ -47,7 +46,9 @@ public class SdkConfigService {
 
 		SdkConfigResponse body = new SdkConfigResponse(env, version.toString(), items);
 
+		String etag = strongEtagOf(body);
 
+		return new SdkBundle(etag, body);
 	}
 
 	private String strongEtagOf(Object payload) {
