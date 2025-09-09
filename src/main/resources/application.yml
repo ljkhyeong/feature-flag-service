@@ -21,6 +21,10 @@ spring:
 
 server:
   port: 8080
+  compression:
+    enabled: true
+    mime-types: application/json,application/javascript,text/html,text/xml,text/plain
+    min-response-size: 1024
 
 logging:
   level:
@@ -33,3 +37,4 @@ management:
     web:
       exposure:
         include: health, metrics, prometheus
+
