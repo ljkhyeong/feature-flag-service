@@ -1,5 +1,6 @@
 package com.myapp.ffs.api;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +35,7 @@ public class FeatureFlagController {
 		return ResponseEntity.ok(featureFlagService.find(key, env));
 	}
 
-	@PutMapping("/{id}")
+	@PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<FeatureFlagResponseDto> update(@PathVariable Long id,
 		@RequestBody @Valid FeatureFlagRequestDto dto) {
 		return ResponseEntity.ok(featureFlagService.update(id, dto));
