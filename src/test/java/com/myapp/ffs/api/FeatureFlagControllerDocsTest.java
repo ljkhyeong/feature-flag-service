@@ -135,7 +135,7 @@ class FeatureFlagControllerDocsTest {
 			{ "flagKey":"checkout.newPayment", "env":"prod", "enabled":true }
 			""";
 
-		given(featureFlagService.update(ID, any()))
+		given(featureFlagService.update(eq(ID), any()))
 			.willReturn(new FeatureFlagResponseDto(ID, KEY, "prod", true));
 
 		mockMvc.perform(put("/api/flags/{id}", ID)
@@ -165,13 +165,45 @@ class FeatureFlagControllerDocsTest {
 	@Test
 	@DisplayName("PUT /api/flags/{id} - 404 실패 (해당하는 key 플래그 없음)")
 	void updateFlag_fail() throws Exception {
-		given(featureFlagService.update(99L, any()))
+		String json = """
+        { "flagKey":"checkout.newPayment", "env":"prod", "enabled":true }
+        """;
+
+		given(featureFlagService.update(eq(99L), any()))
 			.willThrow(new ApplicationException(ErrorCode.FLAG_NOT_FOUND));
 
 		mockMvc.perform(put("/api/flags/{id}", 99L)
-				.accept(MediaType.APPLICATION_JSON))
+				.accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(json))
 			.andExpect(status().isNotFound())
-			.andDo(document("update-flag-fail",
+			.andDo(document("update-flag-fail-404",
+				preprocessResponse(prettyPrint()),
+				pathParameters(
+					parameterWithName("id").description("플래그 ID")
+				),
+				requestFields(
+					fieldWithPath("flagKey").description("플래그 키"),
+					fieldWithPath("env").description("환경"),
+					fieldWithPath("enabled").description("활성화 여부")
+				),
+				responseFields(
+					fieldWithPath("code").description("에러 코드 (예: FLAG_NOT_FOUND)"),
+					fieldWithPath("message").description("에러 메시지"),
+					fieldWithPath("path").description("요청 경로"),
+					fieldWithPath("timestamp").description("발생 시각(UTC, ISO-8601)")
+				)
+			));
+	}
+
+	@Test
+	@DisplayName("PUT /api/flags/{id} - 400 실패 (requestBody 없음)")
+	void updateFlag_fail_whenBodyMissing() throws Exception {
+		mockMvc.perform(put("/api/flags/{id}", 99L)
+				.accept(MediaType.APPLICATION_JSON)
+				.contentType(MediaType.APPLICATION_JSON))
+			.andExpect(status().isBadRequest())
+			.andDo(document("update-flag-fail-400",
 				preprocessResponse(prettyPrint()),
 				pathParameters(
 					parameterWithName("id").description("플래그 ID")

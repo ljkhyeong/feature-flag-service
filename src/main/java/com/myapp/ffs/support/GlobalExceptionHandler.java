@@ -4,6 +4,7 @@ import java.util.NoSuchElementException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,6 +33,15 @@ public class GlobalExceptionHandler {
 		ErrorCode errorCode = e.getErrorCode();
 		return ResponseEntity.status(errorCode.getHttpStatus())
 			.body(ErrorResponse.of(errorCode.name(), errorCode.getMessage(), req.getRequestURI()));
+	}
+
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+	public ResponseEntity<ErrorResponse> handleNotReadable(HttpMessageNotReadableException e,
+		HttpServletRequest request) {
+		ErrorResponse body = ErrorResponse.of("INVALID_REQUEST_BODY", "요청 본문을 읽을 수 없습니다.",
+			request.getRequestURI());
+		return ResponseEntity.badRequest()
+			.body(body);
 	}
 
 
