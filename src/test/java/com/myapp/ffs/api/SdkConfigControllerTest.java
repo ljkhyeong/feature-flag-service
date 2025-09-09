@@ -64,7 +64,7 @@ public class SdkConfigControllerTest {
 			.andExpect(header().string(HttpHeaders.ETAG, "\"" + etag + "\""))
 			.andExpect(jsonPath("$.env").value(env))
 			.andExpect(jsonPath("$.flags[0].key").value(flagKey1))
-			.andDo(document("sdk-config-200",
+			.andDo(document("get-sdk-config-200",
 				preprocessRequest(prettyPrint()),
 				preprocessResponse(prettyPrint()),
 				queryParameters(
@@ -88,7 +88,7 @@ public class SdkConfigControllerTest {
 				.header(HttpHeaders.IF_NONE_MATCH, etag))
 			.andExpect(status().isNotModified())
 			.andExpect(header().string(HttpHeaders.ETAG, "\"" + etag + "\""))
-			.andDo(document("sdk-config-304",
+			.andDo(document("get-sdk-config-304",
 				preprocessRequest(prettyPrint()),
 				preprocessResponse(prettyPrint()),
 				queryParameters(
