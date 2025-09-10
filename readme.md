@@ -34,6 +34,32 @@ Spring Boot 기반의 **Feature Flag Management Service**.
 - 플래그/변형 CRUD
 - 환경별 번들 JSON + ETag 헤더
 - 감사 로그 (Audit Log)
+- 퍼센트 롤아웃(rolloutPercentage)
+- include/exclude 기반 타겟팅 (rulesJson 파싱)
+
+---
+
+## 📡 SDK 번들 (/sdk/v1/config)
+- 환경별 플래그 번들을 JSON으로 제공
+- 헤더
+- `ETag`: payload 해시 기반 (If-None-Match → 304 Not Modified 지원)
+- `Cache-Control: no-cache`
+     - 응답 예시:
+```json
+{
+  "env": "stage",
+  "version": "2025-09-06T10:30:00Z",
+  "flags": [
+    {
+     "key": "checkout.newPayment",
+     "enabled": true,
+     "rolloutPercentage": 50,
+     "include": ["u1","u2"],
+     "exclude": ["u9"]
+    }
+  ]
+}
+```
 
 ---
 

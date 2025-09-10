@@ -54,3 +54,21 @@
 ### 추가 시나리오/문서화
 - `PATCH /api/flags/{id}/toggle` 성공 케이스 문서화 완료
     - 최초 조회 → 캐시 적재 → 토글 → 캐시 무효화 확인 → 재조회 시 토글 결과 반영
+
+## 2025-09-09 업데이트
+- `/sdk/v1/config` 엔드포인트 초안 구현
+  - ETag 헤더 지원, If-None-Match 처리 → 304 응답
+  - gzip 응답 활성화
+- REST Docs: 200 / 304 케이스 문서화 완료
+- ETag는 payload 해시 기반 → rulesJson 변경 시 자동 변경됨 << 테스트 필요
+- redis-cli 확인 결과, 캐시된 SDK 번들 키는 rulesJson이 바뀌면 자동 invalidation << 테스트 필요
+
+
+## 2025-09-10 업데이트
+- rolloutPercentage, include, exclude 필드 SDK 응답에 추가
+- `rulesJson`(JSON) 필드 파싱 로직 적용
+  - `{ "include": ["u1"], "exclude": ["u9"] }` 구조
+  - fallback: 문자열 `"u1,u2"`도 허용
+- REST Docs: flags[].rolloutPercentage/include/exclude 문서화 완료
+- 운영 팁: rulesJson 필드는 `{ include: [...], exclude: [...] }` 구조 권장.
+  문자열 한 줄("u1,u2")도 수용하지만, 가독성과 안정성 때문에 배열 사용을 기본으로.
