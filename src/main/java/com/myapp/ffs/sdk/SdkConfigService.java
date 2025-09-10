@@ -5,12 +5,10 @@ import static java.util.stream.Collectors.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -18,7 +16,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myapp.ffs.flag.domain.FeatureFlag;
 import com.myapp.ffs.flag.repository.FeatureFlagRepository;
-import com.myapp.ffs.sdk.dto.FlagItem;
+import com.myapp.ffs.flag.dto.FlagItem;
 import com.myapp.ffs.sdk.dto.SdkBundle;
 import com.myapp.ffs.sdk.dto.SdkConfigResponse;
 
@@ -35,7 +33,7 @@ public class SdkConfigService {
 		List<FeatureFlag> flags = featureFlagRepository.findAllByEnv(env);
 
 		List<FlagItem> items = flags.stream()
-			.map(flag -> new FlagItem(flag.getFlagKey(), flag.isEnabled()))
+			.map(FlagItem::from)
 			.collect(toList());
 
 		Instant version = flags.stream()
