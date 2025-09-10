@@ -9,27 +9,20 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.BDDMockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
-import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
-import org.springframework.restdocs.operation.preprocess.Preprocessors;
-import org.springframework.restdocs.payload.PayloadDocumentation;
-import org.springframework.restdocs.request.RequestDocumentation;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.myapp.ffs.sdk.SdkConfigService;
-import com.myapp.ffs.sdk.dto.FlagItem;
+import com.myapp.ffs.flag.dto.FlagItem;
 import com.myapp.ffs.sdk.dto.SdkBundle;
 import com.myapp.ffs.sdk.dto.SdkConfigResponse;
 
@@ -50,8 +43,8 @@ public class SdkConfigControllerTest {
 	SdkConfigResponse body = new SdkConfigResponse(
 		env,
 		version,
-		List.of(new FlagItem(flagKey1, true),
-			new FlagItem(flagKey2, false))
+		List.of(new FlagItem(flagKey1, true, 100, Set.of(), Set.of()),
+			new FlagItem(flagKey2, false, 100, Set.of(), Set.of()))
 	);
 	@Test
 	@DisplayName("GET /sdk/v1/config?env=stage - 200 + ETag")
@@ -74,7 +67,10 @@ public class SdkConfigControllerTest {
 					fieldWithPath("env").description("환경"),
 					fieldWithPath("version").description("번들 버전(최신 업데이트 시간)"),
 					fieldWithPath("flags[].key").description("플래그 키"),
-					fieldWithPath("flags[].enabled").description("활성화 여부")
+					fieldWithPath("flags[].enabled").description("활성화 여부"),
+					fieldWithPath("flags[].rolloutPercentage").description("롤아웃 퍼센티지").optional(),
+					fieldWithPath("flags[].include[]").description("무조건 포함할 사용자 ID").optional(),
+					fieldWithPath("flags[].exclude[]").description("무조건 제외할 사용자 ID").optional()
 				)
 			));
 	}
