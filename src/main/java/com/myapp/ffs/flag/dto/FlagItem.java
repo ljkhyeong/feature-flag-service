@@ -4,6 +4,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.myapp.ffs.flag.domain.FeatureFlag;
+import com.myapp.ffs.sdk.client.RolloutEvaluator;
 import com.myapp.ffs.support.RulesJsonParser;
 
 public record FlagItem (
@@ -17,5 +18,9 @@ public record FlagItem (
 	public static FlagItem from(FeatureFlag flag) {
 		return new FlagItem(flag.getFlagKey(),flag.isEnabled(), flag.getRolloutPercentage(),
 			RulesJsonParser.parseInclude(flag.getRulesJson()), RulesJsonParser.parseExclude(flag.getRulesJson()));
+	}
+
+	public boolean isEnabledFor(String userId) {
+		return RolloutEvaluator.isEnabledForUser(userId, enabled, rolloutPercentage, include, exclude);
 	}
 }
