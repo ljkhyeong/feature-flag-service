@@ -21,7 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.myapp.ffs.sdk.SdkConfigService;
+import com.myapp.ffs.sdk.service.SdkConfigService;
 import com.myapp.ffs.flag.dto.FlagItem;
 import com.myapp.ffs.sdk.dto.SdkBundle;
 import com.myapp.ffs.sdk.dto.SdkConfigResponse;

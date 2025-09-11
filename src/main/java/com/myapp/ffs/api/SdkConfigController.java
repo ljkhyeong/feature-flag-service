@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.myapp.ffs.sdk.SdkConfigService;
+import com.myapp.ffs.sdk.service.SdkConfigService;
 import com.myapp.ffs.sdk.dto.SdkBundle;
 import com.myapp.ffs.sdk.dto.SdkConfigResponse;
 
