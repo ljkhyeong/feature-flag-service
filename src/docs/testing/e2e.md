@@ -72,3 +72,11 @@
 - REST Docs: flags[].rolloutPercentage/include/exclude 문서화 완료
 - 운영 팁: rulesJson 필드는 `{ include: [...], exclude: [...] }` 구조 권장.
   문자열 한 줄("u1,u2")도 수용하지만, 가독성과 안정성 때문에 배열 사용을 기본으로.
+
+## 2025-09-11 업데이트
+- k6 스크립트 초안 작성 (`scripts/k6/sdk_smoke.js`)
+- 시나리오
+  1. `/sdk/v1/config?env=stage` 최초 조회 (200 + ETag)
+  2. 동일 ETag로 재요청 (304)
+  3. rulesJson 수정 후 다시 조회 (ETag 변경, 200)
+- VU = 5, Duration = 10s
