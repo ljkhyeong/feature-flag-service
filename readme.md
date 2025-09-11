@@ -62,6 +62,15 @@ Spring Boot 기반의 **Feature Flag Management Service**.
 ```
 
 ---
+## 🎛 SDK 클라이언트 평가
+- 클라이언트 SDK는 `/sdk/v1/config` 응답을 역직렬화하여 `FlagItem`을 사용.
+- 각 플래그에 대해 `flagItem.isEnabledFor(userId)` 호출 시 최종 활성 여부를 판정.
+- 평가 순서:
+  - i. exclude (무조건 false)
+  - ii. include (무조건 true)
+  - iii. rolloutPercentage (해시 기반 퍼센트)
+  - iv. baseEnabled (fallback)
+---
 
 ## 📄 API 문서
 - REST Docs 기반 HTML 문서
@@ -125,6 +134,7 @@ GitHub Actions로 테스트/문서 빌드 실행
 - docs/testing/e2e.md — E2E 시나리오, 실행법, 이슈 기록
 - docs/arch/adr-001-caching.md — 캐시 정책/직렬화기 결정
 - docs/retrospectives/ — 날짜별 회고 기록
+- docs/arch/adr-002-sdk-endpoint.md — SDK 엔드포인트 & 롤아웃 정책
 
 ---
 ## ⚠️ 표준 에러 스키마 (예시)
