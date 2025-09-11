@@ -1,4 +1,4 @@
-package com.myapp.ffs.sdk;
+package com.myapp.ffs.sdk.service;
 
 import static java.util.stream.Collectors.*;
 

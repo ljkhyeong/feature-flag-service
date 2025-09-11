@@ -1,4 +1,4 @@
-package com.myapp.ffs.sdk.service;
+package com.myapp.ffs.sdk.client;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -13,6 +13,9 @@ public final class RolloutEvaluator {
 
 	public static boolean isEnabledForUser(String userId, boolean baseEnabled, Integer rolloutPercentage,
 		Set<String> include, Set<String> exclude) {
+
+		if (userId == null)
+			return baseEnabled;
 		if (exclude != null && exclude.contains(userId)) {
 			return false;
 		}
@@ -23,6 +26,7 @@ public final class RolloutEvaluator {
 			int bucket = bucket(userId);
 			return bucket < rolloutPercentage;
 		}
+
 		return baseEnabled;
 	}
 
@@ -33,7 +37,7 @@ public final class RolloutEvaluator {
 			int val = ((hash[0] & 0xff) << 8) | (hash[1] & 0xff);
 			return val % 100;
 		} catch (NoSuchAlgorithmException e) {
-			return userId.hashCode() % 100;
+			return Math.abs(userId.hashCode() % 100);
 		}
 	}
 }
