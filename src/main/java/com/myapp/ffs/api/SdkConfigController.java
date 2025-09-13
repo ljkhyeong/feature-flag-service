@@ -30,7 +30,7 @@ public class SdkConfigController {
 
 		if (ifNoneMatch != null && ifNoneMatch.equals(bundle.etag())) {
 			return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
-				.eTag(bundle.etag())
+				.eTag(bundle.etag()) // 응답 헤더 키는 'Etag'로 표시됨 (HTTP는 대소문자 비구분). k6 등에서는 case-insensitive로 읽을 것.
 				.build();
 		}
 
@@ -39,4 +39,5 @@ public class SdkConfigController {
 			.cacheControl(CacheControl.noCache())
 			.body(bundle.payload());
 	}
+
 }

@@ -30,7 +30,7 @@ public class SdkConfigService {
 	private final ObjectMapper objectMapper;
 
 	public SdkBundle getBundle(String env) {
-		List<FeatureFlag> flags = featureFlagRepository.findAllByEnv(env);
+		List<FeatureFlag> flags = featureFlagRepository.findAllByEnvOrderByFlagKey(env);
 
 		List<FlagItem> items = flags.stream()
 			.map(FlagItem::from)

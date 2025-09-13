@@ -92,3 +92,24 @@
 ### 확인 결과
 - 서버 스키마 변경 없이 클라이언트 평가기가 정상 동작
 - If-None-Match 일치 시 304 → 클라이언트 캐시 사용 시나리오 유효
+
+### K6 실행
+- VUs: 5, Duration: 10s
+- 시나리오
+  1) `/sdk/v1/config?env=stage` → 200 + Etag
+  2) 동일 Etag로 `If-None-Match` 재요청 → 304 Not Modified
+
+### 결과
+- **성공률: 100% (200/304 모두 통과)**
+- **http_req_duration**: avg=13.96ms, p95=26.72ms
+- eTag 정상 동작 확인
+
+### 트러블슈팅 로그 요약
+- 현상: k6에서 304 체크 실패 (Postman/Junit 테스트에선 정상)
+- 원인: **응답 헤더 키가 `Etag`** 인데 스크립트에서 `ETag`로 읽어 **undefined** 처리됨
+- 조치:
+  - k6에서 헤더를 **대소문자 무시**로 읽기 또는 `res.headers["Etag"]`로 접근
+  - 서버는 **`ResponseEntity.eTag(...)` 유지** (응답 키: `Etag`)
+- 확인:
+  - `HEADERS(res1)` 로그에서 `Etag: "12c6e089694014aa"` 수신 확인
+  - 이후 `If-None-Match`에 같은 값을 넣어 304 응답 확인

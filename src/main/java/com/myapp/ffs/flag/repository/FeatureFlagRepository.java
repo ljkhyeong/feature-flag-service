@@ -10,5 +10,5 @@ import com.myapp.ffs.flag.domain.FeatureFlag;
 public interface FeatureFlagRepository extends JpaRepository<FeatureFlag, Long> {
 	Optional<FeatureFlag> findByFlagKeyAndEnv(String flagKey, String env);
 
-	List<FeatureFlag> findAllByEnv(String env);
+	List<FeatureFlag> findAllByEnvOrderByFlagKey(String env);
 }

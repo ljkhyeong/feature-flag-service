@@ -150,3 +150,4 @@ GitHub Actions로 테스트/문서 빌드 실행
 | path       | 요청 경로                     |
 | timestamp  | 발생 시각 (UTC, ISO-8601)     |
 
+---
