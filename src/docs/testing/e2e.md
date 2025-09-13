@@ -80,3 +80,15 @@
   2. 동일 ETag로 재요청 (304)
   3. rulesJson 수정 후 다시 조회 (ETag 변경, 200)
 - VU = 5, Duration = 10s
+
+## 2025-09-13 
+
+### 통합 테스트
+- `SdkConfigE2EClientEvalTest`
+  - `/sdk/v1/config` 200 응답 → 클라이언트 모델(FlagItem)로 역직렬화
+  - include/exclude/rollout 우선순위 검증
+  - ETag 304 재검증 테스트 추가
+
+### 확인 결과
+- 서버 스키마 변경 없이 클라이언트 평가기가 정상 동작
+- If-None-Match 일치 시 304 → 클라이언트 캐시 사용 시나리오 유효

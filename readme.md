@@ -70,6 +70,11 @@ Spring Boot 기반의 **Feature Flag Management Service**.
   - ii. include (무조건 true)
   - iii. rolloutPercentage (해시 기반 퍼센트)
   - iv. baseEnabled (fallback)
+- 간단 사용 예:
+  ```java
+  FlagItem f = ...; // /sdk/v1/config로 받은 항목
+  boolean on = f.isEnabledFor(userId);
+  ```
 ---
 
 ## 📄 API 문서
