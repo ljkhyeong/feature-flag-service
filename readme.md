@@ -124,7 +124,7 @@ GitHub Actions로 테스트/문서 빌드 실행
 
 ---
 
-## 🗄️ Caching 정책
+## 🗄️ 서버 캐싱 정책
 | 항목            | 규칙/정책                                                                  |
 |---------------|------------------------------------------------------------------------|
 | 키 규칙          | `{key}:{env}` (예: `checkout.newPayment:stage`)                         |
@@ -134,7 +134,13 @@ GitHub Actions로 테스트/문서 빌드 실행
 | null 캐싱       | 금지 (`disableCachingNullValues()`)                                      |
 | 직렬화기          | `GenericJackson2JsonRedisSerializer` (CacheManager & RedisTemplate 동일) |
 ---
-
+## 🗂 클라이언트 캐싱 정책
+- SDK는 응답 헤더의 ETag를 저장했다가, 다음 요청 시 `If-None-Match` 헤더에 넣어 전송한다.
+- 서버가 변경 없음을 확인하면 304 Not Modified를 반환 → 네트워크 비용 최소화.
+- 권장 로직:
+  - 첫 요청: 200 OK → ETag 저장
+  - 두 번째 이후: ETag 포함 요청 → 304 → 로컬 캐시 사용
+---
 ## 📚 문서 관리
 - docs/testing/e2e.md — E2E 시나리오, 실행법, 이슈 기록
 - docs/arch/adr-001-caching.md — 캐시 정책/직렬화기 결정
@@ -151,3 +157,15 @@ GitHub Actions로 테스트/문서 빌드 실행
 | timestamp  | 발생 시각 (UTC, ISO-8601)     |
 
 ---
+## 🧰 Troubleshooting 요약
+- E2E 테스트 중 캐시 히트 시 LinkedHashMap 으로 역직렬화되어 500 오류 발생.
+  - 원인 : Jackson2JsonRedisSerializer\<Object\> 사용 시 타입 정보가 포함되지 않아 DTO 복원 실패.
+  - 해결: GenericJackson2JsonRedisSerializer 로 변경 → 타입 메타데이터 포함 → DTO 안전 복원.
+- k6에서 etag 헤더값을 못뽑아냄
+  - 원인 : 서버는 `ResponseEntity.eTag(...)` 를 사용하므로 응답 헤더 키는 `Etag`.
+  - 해결 : js에서 `res.headers["ETag"]`는 undefined 됨. 대소문자 구분 접근 필요:
+
+---
+## 개선할 점
+- FeatureFlag.rulesJson: String 유지. 차후 DTO 매핑(FlagRules) 고려.
+- SdkConfigController: ResponseEntity.eTag(...) → 응답 헤더 키가 ETag가 아닌 Etag. 표준인 ETag로 개선 고려.
