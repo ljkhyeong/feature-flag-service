@@ -166,7 +166,7 @@ class FeatureFlagE2ETest {
 
 	@Test
 	@Order(5)
-	@DisplayName("토글 후 캐시 flush, 플래그 비활성화")
+	@DisplayName("토글 후 캐시 put, 플래그 비활성화")
 	void toggleFlag_cacheEvict() throws Exception{
 		// given
 		mockMvc.perform(get("/api/flags/{env}/{key}", env, key))
@@ -180,6 +180,6 @@ class FeatureFlagE2ETest {
 			.andExpect(jsonPath("$.enabled").value(false));
 
 		// then
-		assertThat(redisTemplate.hasKey(cacheKey)).isFalse();
+		assertThat(redisTemplate.hasKey(cacheKey)).isTrue();
 	}
 }
