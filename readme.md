@@ -122,6 +122,13 @@ GitHub Actions로 테스트/문서 빌드 실행
 
 워크플로 파일: .github/workflows/ci.yml
 
+### Steps
+1) `./gradlew clean test` (REST Docs **snippets** 생성)
+2) `./gradlew asciidoctor` (REST Docs **HTML** 생성)
+3) 아티팩트 업로드
+   - `rest-docs-snippets`: `build/generated-snippets/**`
+   - `rest-docs-html`: `build/docs/asciidoc/**`
+
 ---
 
 ## 🗄️ 서버 캐싱 정책
