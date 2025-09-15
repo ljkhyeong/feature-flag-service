@@ -29,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class FeatureFlagService {
 	private final FeatureFlagRepository featureFlagRepository;
 	private final CacheManager cacheManager;
+	private static final String CACHE_FLAG = "flags";
 
 	@Transactional
 	public FeatureFlagResponseDto create(FeatureFlagRequestDto dto) {
@@ -44,7 +45,7 @@ public class FeatureFlagService {
 		return FeatureFlagResponseDto.from(savedFlag);
 	}
 
-	@Cacheable(value = "flags", key = "#key + ':' + #env")
+	@Cacheable(value = CACHE_FLAG, key = "#key + ':' + #env")
 	@Transactional(readOnly = true)
 	public FeatureFlagResponseDto find(String key, String env) {
 		return featureFlagRepository.findByFlagKeyAndEnv(key, env)
@@ -52,7 +53,7 @@ public class FeatureFlagService {
 			.orElseThrow(() -> new ApplicationException(ErrorCode.FLAG_NOT_FOUND));
 	}
 
-	@CachePut(value = "flags", key = "#dto.flagKey() + ':' + #dto.env()")
+	@CachePut(value = CACHE_FLAG, key = "#result.flagKey() + ':' + #result.env()")
 	@Transactional
 	public FeatureFlagResponseDto update(Long id, FeatureFlagRequestDto dto) {
 		FeatureFlag flag = featureFlagRepository.findById(id)
@@ -63,33 +64,36 @@ public class FeatureFlagService {
 
 		flag.change(dto.flagKey(), dto.env(), dto.description(), dto.enabled());
 		if (!Objects.equals(oldKey, flag.getFlagKey()) || !Objects.equals(oldEnv, flag.getEnv())) {
-			Cache cache = cacheManager.getCache("flags");
-			if (cache != null) {
-				cache.evict(oldKey + ":" + oldEnv);
-			}
+			evictFlags(oldKey, oldEnv);
 		}
 
 		return FeatureFlagResponseDto.from(flag);
 	}
 
+	@CachePut(value = CACHE_FLAG, key = "#result.flagKey() + ':' + #result.env()")
 	@Transactional
 	public FeatureFlagResponseDto toggle(Long id) {
 		FeatureFlag flag = featureFlagRepository.findById(id)
 			.orElseThrow(() -> new ApplicationException(ErrorCode.FLAG_NOT_FOUND));
 
 		flag.toggle();
-		Cache cache = cacheManager.getCache("flags");
-		if (cache != null) {
-			cache.evict(flag.getFlagKey() + ":" + flag.getEnv());
-		}
 		return FeatureFlagResponseDto.from(flag);
 	}
 
 	@Transactional
 	public void delete(Long id) {
-		if (!featureFlagRepository.existsById(id))
-			throw new ApplicationException(ErrorCode.FLAG_NOT_FOUND);
-		featureFlagRepository.deleteById(id);
+		FeatureFlag flag = featureFlagRepository.findById(id)
+			.orElseThrow(() -> new ApplicationException(ErrorCode.FLAG_NOT_FOUND));
+
+		featureFlagRepository.delete(flag);
+		evictFlags(flag.getFlagKey(), flag.getEnv());
+	}
+
+	private void evictFlags(String key, String env) {
+		Cache cache = cacheManager.getCache(CACHE_FLAG);
+		if (cache != null && key != null && env != null) {
+			cache.evict(key + ":" + env);
+		}
 	}
 
 
