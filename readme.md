@@ -162,6 +162,14 @@ GitHub Actions로 테스트/문서 빌드 실행
 | message    | 에러 메시지                    |
 | path       | 요청 경로                     |
 | timestamp  | 발생 시각 (UTC, ISO-8601)     |
+---
+## 🔧 운영 준비 (로깅/예외 표준화)
+
+- 예외: `ApplicationException + ErrorCode` 표준 도입
+- 전역 처리기: `GlobalExceptionHandler` → `{code,message,path,timestamp}` 반환
+- 로깅(dev/test): 캐시 MISS/PUT/EVICT 로깅 활성화
+
+(HIT 로깅은 추후 AOP 확장 예정)
 
 ---
 ## 🧰 Troubleshooting 요약
