@@ -129,6 +129,29 @@ class FeatureFlagControllerDocsTest {
 	}
 
 	@Test
+	@DisplayName("POST /api/flags - 400 실패 (필수필드 누락)")
+	void createFlag_fail_missingField() throws Exception {
+		String json = """
+			{ "env":"stage", "enabled":true }
+			""";
+
+		// when
+		// then
+		mockMvc.perform(post("/api/flags")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(json))
+			.andExpect(status().isBadRequest())
+			.andDo(document("create-flag-fail-400",
+				preprocessResponse(prettyPrint()),
+				responseFields(
+					fieldWithPath("code").description("에러 코드"),
+					fieldWithPath("message").description("에러 메시지"),
+					fieldWithPath("path").description("요청 경로"),
+					fieldWithPath("timestamp").description("발생 시각(UTC, ISO-8601)")
+				)));
+	}
+
+	@Test
 	@DisplayName("PUT /api/flags/{id} - 200 성공 (플래그 수정)")
 	void updateFlag() throws Exception {
 		String json = """
