@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationContextException;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,12 +24,16 @@ import com.myapp.ffs.flag.dto.FeatureFlagResponseDto;
 import com.myapp.ffs.flag.repository.FeatureFlagRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FeatureFlagService {
 	private final FeatureFlagRepository featureFlagRepository;
 	private final CacheManager cacheManager;
+	private final Environment environment;
+	// TODO : 로깅 AOP 사용하자
 	private static final String CACHE_FLAG = "flags";
 
 	@Transactional
@@ -48,9 +53,14 @@ public class FeatureFlagService {
 	@Cacheable(value = CACHE_FLAG, key = "#key + ':' + #env")
 	@Transactional(readOnly = true)
 	public FeatureFlagResponseDto find(String key, String env) {
-		return featureFlagRepository.findByFlagKeyAndEnv(key, env)
+		FeatureFlagResponseDto dto = featureFlagRepository.findByFlagKeyAndEnv(key, env)
 			.map(FeatureFlagResponseDto::from)
 			.orElseThrow(() -> new ApplicationException(ErrorCode.FLAG_NOT_FOUND));
+
+		if (isDevOrTest()) {
+			log.info("[CACHE:MISS] flags {}:{}", key, env);
+		}
+		return dto;
 	}
 
 	@CachePut(value = CACHE_FLAG, key = "#result.flagKey() + ':' + #result.env()")
@@ -67,6 +77,10 @@ public class FeatureFlagService {
 			evictFlags(oldKey, oldEnv);
 		}
 
+		if (isDevOrTest()) {
+			log.info("[CACHE:PUT] flags {}:{} (update)", flag.getFlagKey(), flag.getEnv());
+		}
+
 		return FeatureFlagResponseDto.from(flag);
 	}
 
@@ -77,6 +91,11 @@ public class FeatureFlagService {
 			.orElseThrow(() -> new ApplicationException(ErrorCode.FLAG_NOT_FOUND));
 
 		flag.toggle();
+
+		if (isDevOrTest()) {
+			log.info("[CACHE:PUT] flags {}:{} (toggle -> enabled={}", flag.getFlagKey(), flag.getEnv(),
+				flag.isEnabled());
+		}
 		return FeatureFlagResponseDto.from(flag);
 	}
 
@@ -87,6 +106,9 @@ public class FeatureFlagService {
 
 		featureFlagRepository.delete(flag);
 		evictFlags(flag.getFlagKey(), flag.getEnv());
+		if (isDevOrTest()) {
+			log.info("[CACHE:EVICT] flags {}:{} (delete)", flag.getFlagKey(), flag.getEnv());
+		}
 	}
 
 	private void evictFlags(String key, String env) {
@@ -96,6 +118,14 @@ public class FeatureFlagService {
 		}
 	}
 
+	private boolean isDevOrTest() {
+		for (String p : environment.getActiveProfiles()) {
+			if (Objects.equals(p.toLowerCase(), "dev") || Objects.equals(p.toLowerCase(), "test")) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 
 }
