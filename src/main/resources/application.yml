@@ -38,3 +38,6 @@ management:
       exposure:
         include: health, metrics, prometheus
 
+app:
+  cache:
+    log-hit: true
