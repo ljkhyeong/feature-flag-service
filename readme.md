@@ -179,7 +179,9 @@ GitHub Actions로 테스트/문서 빌드 실행
 - k6에서 etag 헤더값을 못뽑아냄
   - 원인 : 서버는 `ResponseEntity.eTag(...)` 를 사용하므로 응답 헤더 키는 `Etag`.
   - 해결 : js에서 `res.headers["ETag"]`는 undefined 됨. 대소문자 구분 접근 필요:
-
+- flag-create-400 테스트에서 UnexpectedTypeException
+  - 원인: 필드 타입과 제약 애노테이션 불일치(NotBlank를 Boolean/Integer에 사용 등)
+  - 해결: DTO 제약 수정 + 컨트롤러 파라미터 @Valid 적용, 전역 핸들러에서 VALIDATION_ERROR(400) 매핑
 ---
 ## 개선할 점
 - FeatureFlag.rulesJson: String 유지. 차후 DTO 매핑(FlagRules) 고려.
