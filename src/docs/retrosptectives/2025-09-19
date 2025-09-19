@@ -1,0 +1,12 @@
+# 회고 - 2025-09-19
+## 오늘 한 일
+- DTO 검증 보완(@NotBlank/@NotNull/Min/Max 정합화), 컨트롤러 @Valid 적용
+- application.yml dev/test AOP 캐시 로깅 스위치 추가(app.cache.log-hit)
+- readme.md 트러블슈팅에 UnexpectedTypeException 사례 추가
+
+## 배운 점
+- Validation 오용은 500을 유발하므로 DTO 제약의 타입 일치가 핵심.
+- 캐시 HIT 로깅은 서비스 레벨만으론 곤란 → AOP/메트릭이 현실적.
+
+## 아쉬운 점
+- AOP는 최소한의 로깅만 도입(Micrometer 연동은 후순위).
