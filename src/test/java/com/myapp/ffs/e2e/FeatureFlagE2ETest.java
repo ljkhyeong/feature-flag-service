@@ -182,4 +182,26 @@ class FeatureFlagE2ETest {
 		// then
 		assertThat(redisTemplate.hasKey(cacheKey)).isTrue();
 	}
+
+	@Test
+	@Order(6)
+	@DisplayName("삭제 시 캐시 evict 및 404")
+	void deleteFlag_cacheEvict() throws Exception{
+		// given
+		mockMvc.perform(get("/api/flags/{env}/{key}", env, key))
+			.andExpect(status().isOk());
+		assertThat(redisTemplate.hasKey(cacheKey)).isTrue();
+
+		// when
+		mockMvc.perform(delete("/api/flags/{id}",
+				featureFlagRepository.findByFlagKeyAndEnv(key, env).orElseThrow().getId()))
+			.andExpect(status().isNoContent());
+
+		// then
+		assertThat(redisTemplate.hasKey(cacheKey)).isFalse();
+		mockMvc.perform(get("/api/flags/{env}/{key}", env, key))
+			.andExpect(status().isNotFound())
+			.andExpect(jsonPath("$.code").value("FLAG_NOT_FOUND"));
+
+	}
 }

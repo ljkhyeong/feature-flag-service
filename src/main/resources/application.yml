@@ -36,7 +36,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, metrics, prometheus
+        include: health, info, metrics, prometheus
+  metrics:
+    tags:
+      application: feature-flag-service
 
 app:
   cache:

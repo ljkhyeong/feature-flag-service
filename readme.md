@@ -28,6 +28,12 @@ Spring Boot 기반의 **Feature Flag Management Service**.
 - Spring Boot Actuator, Micrometer
 - Docker Compose (로컬 통합 실행)
 
+### 🔎 Actuator / Metrics 노출
+- `/actuator/health`, `/actuator/info`, `/actuator/metrics`, `/actuator/prometheus` 노출
+- 캐시 메트릭: `cache.gets`, `cache.puts`, `cache.evictions` (캐시 이름별 태깅, 현재는 flags만)
+- `application` 태그 부여 (feature-flag-service)
+
+
 ---
 
 ## 🚀 MVP 기능

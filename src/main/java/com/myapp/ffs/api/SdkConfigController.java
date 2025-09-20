@@ -31,6 +31,7 @@ public class SdkConfigController {
 		if (ifNoneMatch != null && ifNoneMatch.equals(bundle.etag())) {
 			return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
 				.eTag(bundle.etag()) // 응답 헤더 키는 'Etag'로 표시됨 (HTTP는 대소문자 비구분). k6 등에서는 case-insensitive로 읽을 것.
+				.cacheControl(CacheControl.noCache()) // 일부 캐시/프록시 서버에서 304응답 헤더를 덮어씌우는 경우도 있다고 해서 추가함
 				.build();
 		}
 
