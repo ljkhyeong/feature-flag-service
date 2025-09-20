@@ -3,6 +3,7 @@ package com.myapp.ffs.config;
 import static org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair.*;
 
 import java.time.Duration;
+import java.util.Set;
 
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +37,7 @@ public class CacheConfig {
 
 		return RedisCacheManager.builder(redisConnectionFactory)
 			.cacheDefaults(redisCacheConfig)
+			.initialCacheNames(Set.of("flags"))
 			.build();
 	}
 
