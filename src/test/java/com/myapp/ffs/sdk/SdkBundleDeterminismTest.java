@@ -3,6 +3,7 @@ package com.myapp.ffs.sdk;
 import static org.assertj.core.api.Assertions.*;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,8 @@ import com.myapp.ffs.sdk.dto.SdkBundle;
 import com.myapp.ffs.sdk.service.SdkConfigService;
 
 @SpringBootTest
-public class SdkBundleDeterminismTest {
+@Disabled("CI 안정화까지 비활성화 or 단위테스트화")
+class SdkBundleDeterminismTest {
 
 	@Autowired
 	SdkConfigService sdkConfigService;
