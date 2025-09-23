@@ -11,6 +11,7 @@
 ## 결정
 1. `rulesJson` 구조 확장
    ```json
+   // 다중 조건
    {
      "conditions": [
        { "attribute": "country", "op": "EQUALS", "value": "KR" },
@@ -18,6 +19,20 @@
      ],
      "logic": "AND"
    }
+    // 단일 조건
+    {
+      "conditions": [
+        { "attribute": "country", "op": "EQUALS", "value": "KR" }
+      ],
+      "logic": "AND"
+    }
+   // 정규식 조건
+   {
+    "conditions": [
+    { "attribute": "userId", "op": "MATCHES", "value": "^dev.*" }
+    ],
+    "logic": "AND"
+    }
 
 2. 지원 연산자
 - EQUALS, NOT_EQUALS
@@ -26,7 +41,12 @@
 - 조합 연산: AND, OR
 
 3. 평가 순서
-- exclude → include → rulesJson → rollout → 기본 enabled
+   1. exclude → 무조건 false
+   2. include → 무조건 true
+   3. rulesJson → 조건식 평가
+   4. rolloutPercentage → 퍼센트 롤아웃
+   5. baseEnabled → 마지막 fallback
+
 
 4. 파서 & 평가기
 - RuleParser: JSON → Condition 객체 변환
