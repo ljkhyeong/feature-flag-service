@@ -25,4 +25,12 @@ class SegmentEvaluatorTest {
 		boolean evaluate = SegmentEvaluator.evaluate(List.of(c), "AND", Map.of("deviceOS", "ios"));
 		assertThat(evaluate).isTrue();
 	}
+
+	@Test
+	@DisplayName("notEquals 세그먼트")
+	void not_equals() {
+		Condition c = new Condition("deviceOS", Operator.NOT_EQUALS, "ios");
+		boolean evaluate = SegmentEvaluator.evaluate(List.of(c), "AND", Map.of("deviceOS", "ios"));
+		assertThat(evaluate).isFalse();
+	}
 }
