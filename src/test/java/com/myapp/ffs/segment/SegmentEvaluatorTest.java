@@ -18,6 +18,7 @@ class SegmentEvaluatorTest {
 		boolean evaluate = SegmentEvaluator.evaluate(List.of(c), "AND", Map.of("country", "KR"));
 		assertThat(evaluate).isTrue();
 	}
+
 	@Test
 	@DisplayName("in 세그먼트")
 	void in() {
@@ -32,5 +33,31 @@ class SegmentEvaluatorTest {
 		Condition c = new Condition("deviceOS", Operator.NOT_EQUALS, "ios");
 		boolean evaluate = SegmentEvaluator.evaluate(List.of(c), "AND", Map.of("deviceOS", "ios"));
 		assertThat(evaluate).isFalse();
+	}
+
+	@Test
+	@DisplayName("Logic-or 세그먼트")
+	void OrLogic() {
+		Condition c1 = new Condition("deviceOS", Operator.EQUALS, "ios");
+		Condition c2 = new Condition("country", Operator.IN, List.of("KR", "JP"));
+		boolean evaluate = SegmentEvaluator.evaluate(List.of(c1, c2), "OR", Map.of("deviceOS", "ios"));
+		assertThat(evaluate).isTrue();
+	}
+
+	@Test
+	@DisplayName("Logic-and 세그먼트")
+	void AndLogic() {
+		Condition c1 = new Condition("deviceOS", Operator.EQUALS, "ios");
+		Condition c2 = new Condition("country", Operator.IN, List.of("KR", "JP"));
+		boolean evaluate = SegmentEvaluator.evaluate(List.of(c1, c2), "AND", Map.of("deviceOS", "ios"));
+		assertThat(evaluate).isFalse();
+	}
+
+	@Test
+	@DisplayName("MATCHES 세그먼트")
+	void matches() {
+		Condition c = new Condition("userId", Operator.MATCHES, "^dev.*");
+		boolean evaluate = SegmentEvaluator.evaluate(List.of(c), "AND", Map.of("userId", "dev123"));
+		assertThat(evaluate).isTrue();
 	}
 }
