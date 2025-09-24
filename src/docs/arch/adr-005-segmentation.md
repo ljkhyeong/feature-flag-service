@@ -14,22 +14,22 @@
    // 다중 조건
    {
      "conditions": [
-       { "attribute": "country", "op": "EQUALS", "value": "KR" },
-       { "attribute": "device", "op": "IN", "value": ["iOS", "Android"] }
+       { "attribute": "country", "operator": "EQUALS", "value": "KR" },
+       { "attribute": "device", "operator": "IN", "value": ["iOS", "Android"] }
      ],
-     "logic": "AND"
+     "logic": "OR"
    }
     // 단일 조건
     {
       "conditions": [
-        { "attribute": "country", "op": "EQUALS", "value": "KR" }
+        { "attribute": "country", "operator": "EQUALS", "value": "KR" }
       ],
       "logic": "AND"
     }
    // 정규식 조건
    {
     "conditions": [
-    { "attribute": "userId", "op": "MATCHES", "value": "^dev.*" }
+    { "attribute": "userId", "operator": "MATCHES", "value": "^dev.*" }
     ],
     "logic": "AND"
     }
