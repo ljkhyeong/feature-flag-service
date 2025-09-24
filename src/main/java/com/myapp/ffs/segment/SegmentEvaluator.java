@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.Objects;
 
 public class SegmentEvaluator {
-	public static boolean evaluate(List<Condition> conditions, String logic, Map<String, Object> attributes) {
-		boolean result = logic.equalsIgnoreCase("AND");
+	public static boolean evaluate(List<Condition> conditions, Logic logic, Map<String, Object> attributes) {
+		boolean result = (logic == Logic.AND);
 
 		for (Condition condition : conditions) {
 			boolean match = switch (condition.operator()) {
@@ -18,10 +18,10 @@ public class SegmentEvaluator {
 					attributes.getOrDefault(condition.attribute(), "").toString().matches(condition.value().toString());
 			};
 
-			if ("AND".equalsIgnoreCase(logic)) {
+			if (logic == Logic.AND) {
 				result = result && match;
 			}
-			if ("OR".equalsIgnoreCase(logic)) {
+			if (logic == Logic.OR) {
 				result = result || match;
 			}
 		}
