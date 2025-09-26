@@ -60,6 +60,7 @@ class SegmentEvaluatorTest {
 		boolean evaluate = SegmentEvaluator.evaluate(List.of(c), Logic.AND, Map.of("userId", "dev123"));
 		assertThat(evaluate).isTrue();
 	}
+
 	@Test
 	@DisplayName("복수조건 세그먼트")
 	void multipleConditions() {
@@ -70,7 +71,26 @@ class SegmentEvaluatorTest {
 		boolean evaluate = SegmentEvaluator.evaluate(
 			List.of(c1, c2, c3),
 			Logic.AND,
-			Map.of("country", "KR", "region", "Asia","device","iOS"));
+			Map.of("country", "KR", "region", "Asia", "device", "iOS"));
 		assertThat(evaluate).isTrue();
 	}
+
+	@Test
+	@DisplayName("attribute가 null일 경우")
+	void nullAttribute() {
+		Condition c = new Condition("country", Operator.EQUALS, "KR");
+
+		boolean evaluate = SegmentEvaluator.evaluate(List.of(c), Logic.AND, Map.of());
+		assertThat(evaluate).isFalse();
+	}
+
+	@Test
+	@DisplayName("In Condition의 value가 List가 아닌 잘못된 타입일 경우")
+	void invalidValue() {
+		Condition c = new Condition("age", Operator.IN, "notList");
+
+		assertThatThrownBy(() -> SegmentEvaluator.evaluate(List.of(c), Logic.AND, Map.of("age", 20)))
+			.isInstanceOf(ClassCastException.class);
+	}
+
 }

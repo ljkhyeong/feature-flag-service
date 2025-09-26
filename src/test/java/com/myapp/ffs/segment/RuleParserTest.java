@@ -9,6 +9,9 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.myapp.ffs.exception.ApplicationException;
+import com.myapp.ffs.exception.ErrorCode;
+
 class RuleParserTest {
 
 
@@ -47,5 +50,21 @@ class RuleParserTest {
 
 		boolean result = SegmentEvaluator.evaluate(parsed.conditions(), parsed.logic(), Map.of("country", "KR"));
 		assertThat(result).isTrue();
+	}
+
+	@Test
+	@DisplayName("잘못된 JSON 형태")
+	void invalidJson() {
+		String json = """
+			{
+			  "conditions": [
+				{ "attribute": "country", "value": "KR" }
+			  ]
+			}
+			""";
+
+		assertThatThrownBy(() -> RuleParser.parseWithLogic(json))
+			.isInstanceOf(ApplicationException.class)
+			.hasMessage(ErrorCode.INVALID_CONDITION_JSON.getMessage());
 	}
 }
