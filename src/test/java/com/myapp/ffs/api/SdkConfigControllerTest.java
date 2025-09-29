@@ -70,7 +70,8 @@ public class SdkConfigControllerTest {
 					fieldWithPath("flags[].enabled").description("활성화 여부"),
 					fieldWithPath("flags[].rolloutPercentage").description("롤아웃 퍼센티지").optional(),
 					fieldWithPath("flags[].include[]").description("무조건 포함할 사용자 ID").optional(),
-					fieldWithPath("flags[].exclude[]").description("무조건 제외할 사용자 ID").optional()
+					fieldWithPath("flags[].exclude[]").description("무조건 제외할 사용자 ID").optional(),
+					fieldWithPath("flags[].rulesJson").optional().description("세그먼트 타깃팅 조건(JSON 문자열)")
 				)
 			));
 	}
