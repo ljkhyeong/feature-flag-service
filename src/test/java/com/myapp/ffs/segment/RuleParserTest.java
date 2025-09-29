@@ -67,4 +67,36 @@ class RuleParserTest {
 			.isInstanceOf(ApplicationException.class)
 			.hasMessage(ErrorCode.INVALID_CONDITION_JSON.getMessage());
 	}
+
+	@Test
+	@DisplayName("logic 없으면 기본값 AND ")
+	void without_logic() throws Exception {
+		String json = """
+		{
+		  "conditions": [
+			{ "attribute": "country", "operator": "EQUALS", "value": "KR" }
+		  ]
+		}
+		""";
+
+		ParseRuleSet parsed = RuleParser.parseWithLogic(json);
+
+		boolean result = SegmentEvaluator.evaluate(parsed.conditions(), parsed.logic(), Map.of("country", "KR"));
+		assertThat(result).isTrue();
+	}
+	@Test
+	@DisplayName("유효하지 않은 operator")
+	void invalid_operator() throws Exception {
+		String json = """
+		{
+		  "conditions": [
+			{ "attribute": "country", "operator": "BETWEEN", "value": "KR" }
+		  ]
+		}
+		""";
+
+		assertThatThrownBy(() -> RuleParser.parseWithLogic(json))
+			.isInstanceOf(ApplicationException.class)
+			.hasMessageContaining(ErrorCode.UNSUPPORTED_OPERATOR.getMessage());
+	}
 }

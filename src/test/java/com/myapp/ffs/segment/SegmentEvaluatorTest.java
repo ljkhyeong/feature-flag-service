@@ -28,6 +28,14 @@ class SegmentEvaluatorTest {
 	}
 
 	@Test
+	@DisplayName("not-in 세그먼트")
+	void not_in() {
+		Condition c = new Condition("deviceOS", Operator.NOT_IN, List.of("ios", "Android"));
+		boolean evaluate = SegmentEvaluator.evaluate(List.of(c), Logic.AND, Map.of("deviceOS", "Mac"));
+		assertThat(evaluate).isTrue();
+	}
+
+	@Test
 	@DisplayName("notEquals 세그먼트")
 	void not_equals() {
 		Condition c = new Condition("deviceOS", Operator.NOT_EQUALS, "ios");
@@ -47,6 +55,16 @@ class SegmentEvaluatorTest {
 	@Test
 	@DisplayName("Logic-and 세그먼트")
 	void AndLogic() {
+		Condition c1 = new Condition("deviceOS", Operator.EQUALS, "ios");
+		Condition c2 = new Condition("country", Operator.IN, List.of("KR", "JP"));
+		boolean evaluate = SegmentEvaluator.evaluate(List.of(c1, c2), Logic.AND,
+			Map.of("deviceOS", "ios", "country", "KR"));
+		assertThat(evaluate).isTrue();
+	}
+
+	@Test
+	@DisplayName("Logic-and 세그먼트 하나라도 실패하면 false")
+	void AndLogic_false() {
 		Condition c1 = new Condition("deviceOS", Operator.EQUALS, "ios");
 		Condition c2 = new Condition("country", Operator.IN, List.of("KR", "JP"));
 		boolean evaluate = SegmentEvaluator.evaluate(List.of(c1, c2), Logic.AND, Map.of("deviceOS", "ios"));
@@ -93,4 +111,11 @@ class SegmentEvaluatorTest {
 			.isInstanceOf(ClassCastException.class);
 	}
 
+	@Test
+	@DisplayName("Edge 테스트 / 잘못된 타입")
+	void invalidType() {
+		Condition c = new Condition("device", Operator.IN, "iOS");
+		assertThatThrownBy(() -> SegmentEvaluator.evaluate(List.of(c), Logic.AND, Map.of("device", "iOS")))
+			.isInstanceOf(ClassCastException.class);
+	}
 }
