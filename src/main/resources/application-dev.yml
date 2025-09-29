@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://localhost:3306/flags
+    username: app
+    password: app
+    driver-class-name: org.mariadb.jdbc.Driver
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    com.myapp.ffs.segment: debug   # 세그먼트 평가 로그는 dev에서만 디버그
+    # 필요 시: org.hibernate.type.descriptor.sql: trace  # 바인딩 파라미터까지 보고 싶으면
+
+app:
+  cache:
+    log-hit: true
+  segment:
+    log-eval: true

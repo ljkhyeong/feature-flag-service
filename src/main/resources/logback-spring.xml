@@ -1,0 +1,16 @@
+<configuration>
+    <springProfile name="dev,test">
+        <logger name="com.myapp.ffs.segment" level="DEBUG"/>
+    </springProfile>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- MDC로 flag/user 마스킹 값도 붙일 수 있음 -->
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} %X{flag} %X{user} - %msg%n</pattern>
+        </encoder>
+    </appender>
+</configuration>

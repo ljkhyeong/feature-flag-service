@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    # Testcontainers JDBC (테스트에서만; 의존성 있을 때 유효)
+    # url: jdbc:tc:mariadb:10.11:///flags
+    # driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+
+    # 만약 위 방식을 안 쓴다면, 로컬 전용 테스트 DB를 별도 포트로 띄우세요.
+    url: jdbc:mariadb://localhost:3307/flags_test
+    username: app
+    password: app
+    driver-class-name: org.mariadb.jdbc.Driver
+
+  data:
+    redis:
+      host: localhost
+      port: 6380  # 테스트 전용 포트 권장
+
+logging:
+  level:
+    org.hibernate.SQL: warn
+    com.myapp.ffs.segment: debug   # 테스트에서도 조건 평가 로그 보고 싶으면 debug
+
+app:
+  cache:
+    log-hit: false
+  segment:
+    log-eval: true   # 테스트에선 켜두면 원인 분석에 도움
