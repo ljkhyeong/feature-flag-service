@@ -154,6 +154,31 @@ GitHub Actions로 테스트/문서 빌드 실행
   - 첫 요청: 200 OK → ETag 저장
   - 두 번째 이후: ETag 포함 요청 → 304 → 로컬 캐시 사용
 ---
+## 세그먼트 타깃팅 (Segmentation)
+
+플래그는 단순한 `enabled`/`disabled` 뿐만 아니라, 특정 사용자 속성 기반의 세그먼트 타깃팅도 지원합니다.
+
+### DSL 예시
+```json
+{
+  "conditions": [
+    { "attribute": "country", "op": "EQUALS", "value": "KR" },
+    { "attribute": "device", "op": "IN", "value": ["iOS", "Android"] }
+  ],
+  "logic": "AND"
+}
+```
+### 평가 순서
+
+1. exclude → 무조건 false
+2. include → 무조건 true
+3. rulesJson → 세그먼트 평가
+4. rolloutPercentage
+5. baseEnabled
+
+> 서버는 세그먼트 DSL(JSON)을 내려주고, **최종 판정은 SDK가 수행**합니다.  
+> 우선순위: exclude > include > rulesJson(segment) > rollout > baseEnabled
+---
 ## 📚 문서 관리
 - docs/testing/e2e.md — E2E 시나리오, 실행법, 이슈 기록
 - docs/arch/adr-001-caching.md — 캐시 정책/직렬화기 결정
