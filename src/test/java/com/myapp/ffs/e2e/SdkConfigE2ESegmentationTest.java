@@ -8,8 +8,8 @@ import java.util.Map;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myapp.ffs.segment.Condition;
 import com.myapp.ffs.segment.ParseRuleSet;
 import com.myapp.ffs.segment.RuleParser;

@@ -20,8 +20,8 @@ public class RolloutEvaluatorDistributionTest {
 		int rolloutPercentage = 30;
 		int sampleSize = 10_000;
 
-		Set<String> include = new HashSet<>();
-		Set<String> exclude = new HashSet<>();
+		Set<String> include = Set.of();
+		Set<String> exclude = Set.of();
 
 		long enabledCount = IntStream.range(0, sampleSize)
 			.mapToObj(i -> "user-" + i)
